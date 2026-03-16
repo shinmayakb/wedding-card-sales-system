@@ -1,0 +1,60 @@
+ DELIMITER //
+CREATE FUNCTION calculate_total( price DOUBLE , quantity INT)
+RETURNS DOUBLE
+DETERMINISTIC
+BEGIN
+    RETURN price * quantity;
+END //
+DELIMITER ;
+
+
+DELIMITER $$
+CREATE PROCEDURE GetCardsByType(IN typeFilter VARCHAR(50))
+BEGIN
+    IF typeFilter = 'All' THEN
+        SELECT * FROM cards ORDER BY added_on DESC;
+    ELSE
+        SELECT * FROM cards WHERE type = typeFilter ORDER BY added_on DESC;
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+DELIMITER //
+CREATE PROCEDURE GetCartItemsByUserId(IN uid INT)
+BEGIN
+    SELECT c.cart_id, ca.card_id, ca.name, ca.price, ca.image_path, ca.available, c.quantity
+    FROM cart c
+    JOIN cards ca ON c.card_id = ca.card_id
+    WHERE c.userid = uid;
+END //
+DELIMITER ;
+
+
+CREATE OR REPLACE VIEW cart_view AS
+SELECT 
+    crt.userid,
+    c.card_id,
+    c.name,
+    c.price,
+    c.image_path,
+    crt.quantity
+FROM 
+    cart crt
+JOIN 
+    cards c ON crt.card_id = c.card_id;
+
+DELIMITER //
+
+CREATE TRIGGER delete_cart_after_purchase
+AFTER INSERT ON orders
+FOR EACH ROW
+BEGIN
+    DELETE FROM cart
+    WHERE userid = NEW.user_id;
+END //
+
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS delete_cart_after_purchase ;
