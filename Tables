@@ -1,0 +1,126 @@
+CREATE TABLE Customer (
+    user_ID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL,
+    Phone_no VARCHAR(15),
+    Address VARCHAR(100)
+);
+
+CREATE TABLE Admin (
+    Admin_ID INT PRIMARY KEY,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE Template (
+    Template_ID INT PRIMARY KEY,
+    Template_Name VARCHAR(100) NOT NULL,
+    Category VARCHAR(50)
+);
+
+CREATE TABLE Discount (
+    Discount_ID INT PRIMARY KEY,
+    Code VARCHAR(50) NOT NULL UNIQUE,
+    Description VARCHAR(100),
+    Amount DECIMAL(10, 2) NOT NULL,
+    Start_Date DATE,
+    End_Date DATE,
+    Applicable_to VARCHAR(50)
+);
+
+CREATE TABLE WeddingCard (
+    Card_ID INT PRIMARY KEY AUTO_INCREMENT,
+    user_ID INT,
+    Card_Name VARCHAR(100) NOT NULL,
+    Template_ID INT,
+    Description VARCHAR(255),
+    Price DECIMAL(10, 2) NOT NULL,
+    Quantity INT NOT NULL,
+    Category VARCHAR(50),
+    Stock INT NOT NULL,
+    Availability VARCHAR(20),
+    FOREIGN KEY (user_ID) REFERENCES Customer(user_ID),
+    FOREIGN KEY (Template_ID) REFERENCES Template(Template_ID)
+);
+
+CREATE TABLE Order (
+    Order_ID INT PRIMARY KEY,
+    user_ID INT,
+    Card_ID INT,
+    Order_Date DATE,
+    Order_Status VARCHAR(50),
+    Quantity INT NOT NULL,
+    Unit_Price DECIMAL(10, 2) NOT NULL,
+    Shipping_Address VARCHAR(90),
+    Delivery_Date DATETIME,
+    FOREIGN KEY (user_ID) REFERENCES Customer(user_ID),
+    FOREIGN KEY (Card_ID) REFERENCES WeddingCard(Card_ID)
+);
+
+
+CREATE TABLE Payment (
+    Pay_ID INT PRIMARY KEY,
+    Order_ID INT,
+    user_ID INT,
+    Pay_Method VARCHAR(50),
+    Pay_Status VARCHAR(50),
+    pay_Date DATE,
+    FOREIGN KEY (Order_ID) REFERENCES Order(Order_ID),
+    FOREIGN KEY (user_ID) REFERENCES Customer(user_ID)
+);
+
+CREATE TABLE order_items (
+    Order_item_ID INT PRIMARY KEY,
+    Order_ID INT,
+    Card_ID INT,
+    Quantity INT NOT NULL,
+    Unit_Price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (Order_ID) REFERENCES Order(Order_ID),
+    FOREIGN KEY (Card_ID) REFERENCES WeddingCard(Card_ID)
+);
+
+CREATE TABLE Feedback (
+    Feedback_ID INT PRIMARY KEY AUTO_INCREMENT,
+    user_ID INT,
+    Card_ID INT,
+    Rating INT CHECK (Rating BETWEEN 1 AND 5),
+    Review_Text VARCHAR(100),
+    Date DATE,
+    FOREIGN KEY (user_ID) REFERENCES Customer(user_ID),
+    FOREIGN KEY (Card_ID) REFERENCES WeddingCard(Card_ID)
+);
+
+CREATE TABLE Cart (
+    Cart_ID INT PRIMARY KEY,
+    user_ID INT,
+    Created_on DATE,
+    Updated_on DATE,
+    Quantity INT NOT NULL,
+    Unit_Price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (user_ID) REFERENCES Customer(user_ID)
+);
+
+
+CREATE TABLE Shipping (
+    Shipping_ID INT PRIMARY KEY,
+    user_ID INT,
+    Address_line1 VARCHAR(50) NOT NULL,
+    Address_line2 VARCHAR(50),
+    City VARCHAR(50) NOT NULL,
+    State VARCHAR(50) NOT NULL,
+    Country VARCHAR(50) NOT NULL,
+    Postal_Code VARCHAR(10) NOT NULL,
+    FOREIGN KEY (user_ID) REFERENCES Customer(user_ID)
+);
+
+CREATE TABLE Customization (
+    Cust_ID INT PRIMARY KEY,
+    Card_ID INT,
+    Cust_Text VARCHAR(100),
+    Color VARCHAR(50),
+    Palette VARCHAR(50),
+    Font_Style VARCHAR(50),
+    Additional_Decoration VARCHAR(100),
+    FOREIGN KEY (Card_ID) REFERENCES WeddingCard(Card_ID)
+);
